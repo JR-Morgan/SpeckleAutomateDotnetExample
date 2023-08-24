@@ -73,9 +73,9 @@ class AutomateFunction
       var children = GraphTraversal.TraverseMember(current["elements"] ?? current["@elements"]);
       foreach (var child in children)
       {
-        if (activeRule.IsValidChild(child))
+        if (!activeRule.IsValidChild(child))
         {
-          Console.WriteLine($"{child.speckle_type}{child.id} is not a valid child of {current.speckle_type}{current.id} according to rule: {activeRule}");
+          Console.WriteLine($"{child.speckle_type} {child.id} is not a valid child of {current.speckle_type} {current.id} according to rule: {activeRule}");
         }
       }
     }
