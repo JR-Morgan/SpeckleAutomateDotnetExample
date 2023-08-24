@@ -66,7 +66,7 @@ internal static class Program
       speckleToken
     );
     Console.WriteLine(
-      $"Found {count} elements that have the type {functionInputs.SpeckleTypeToCount}"
+      "Finished"
     );
   }
 

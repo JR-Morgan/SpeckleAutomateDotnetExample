@@ -8,9 +8,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-  </ItemGroup>
-
-  <ItemGroup>
     <PackageReference Include="Newtonsoft.Json.Schema" Version="3.0.15" />
     <PackageReference Include="Speckle.Core" Version="2.15.3" />
     <PackageReference Include="Speckle.Newtonsoft.Json" Version="13.0.2" />

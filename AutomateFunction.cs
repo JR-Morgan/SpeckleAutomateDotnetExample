@@ -1,9 +1,17 @@
 using System.ComponentModel.DataAnnotations;
+using System.Runtime.CompilerServices;
+using Objects;
+using Objects.BuiltElements;
 using Objects.Geometry;
+using Objects.Other;
 using Speckle.Core.Api;
 using Speckle.Core.Credentials;
+using Speckle.Core.Models;
 using Speckle.Core.Models.Extensions;
+using Speckle.Core.Models.GraphTraversal;
 using Speckle.Core.Transports;
+using SpeckleAutomateDotnetExample;
+using SpeckleAutomateDotnetExample.Rules;
 
 /// <summary>
 /// This class describes the user specified variables that the function wants to work with.
@@ -12,8 +20,7 @@ using Speckle.Core.Transports;
 /// are valid and match the required schema.
 class FunctionInputs
 {
-  [Required]
-  public string SpeckleTypeToCount;
+
 }
 
 class AutomateFunction
@@ -46,7 +53,37 @@ class AutomateFunction
       serverTransport,
       new MemoryTransport()
     );
+    if (rootObject is null) throw new Exception("root object is null");
 
-    return rootObject.Flatten().Count( b => b.speckle_type == functionInputs.SpeckleTypeToCount);
+    //return rootObject.Flatten().Count( b => b.speckle_type == functionInputs.SpeckleTypeToCount);
+    var rules = CreateRules();
+    ValidateCommit(rootObject, rules);
+    return 0;
+  }
+
+  private static void ValidateCommit(Base root, IList<GrammarRule> rules)
+  {
+    var objects = DefaultTraversal.CreateTraverseFunc(new DummyConverter());
+
+    foreach (var t in objects.Traverse(root))
+    {
+      Base current = t.current;
+      var activeRule = rules.FirstOrDefault(r => r.DoesApply(current));
+      if (activeRule is null) continue;
+      var children = GraphTraversal.TraverseMember(current["elements"] ?? current["@elements"]);
+      foreach (var child in children)
+      {
+        if (activeRule.IsValidChild(child))
+        {
+          Console.WriteLine($"{child.speckle_type}{child.id} is not a valid child of {current.speckle_type}{current.id} according to rule: {activeRule}");
+        }
+      }
+    }
+  }
+  
+  private static IList<GrammarRule> CreateRules()
+  {
+    return new GrammarRule[] { new CollectionRule(), new InstanceRule(), new DisplayValueRule(), new RawGeometryRule() };
   }
 }
+
